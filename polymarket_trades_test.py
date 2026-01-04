@@ -41,7 +41,10 @@ def main():
     df["cost"] = df["price"] * df["size"]
 
     # Convert timestamp (ms → datetime)
-    df["datetime"] = pd.to_datetime(df["timestamp"], unit="s", utc=True)
+    df["datetime"] = (
+        pd.to_datetime(df["timestamp"], unit="s", utc=True)
+        .dt.tz_convert("America/Los_Angeles")
+    )
 
     # Sort by cost
     df = df.sort_values(by="cost", ascending=False).reset_index(drop=True)
