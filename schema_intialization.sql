@@ -7,7 +7,7 @@ CREATE SCHEMA IF NOT EXISTS pm;
 -- =========================
 CREATE TABLE IF NOT EXISTS pm.users (
   user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  display_name TEXT NOT NULL,
+  display_name TEXT NOT NULL UNIQUE,   -- natural key
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS pm.users (
 -- =========================
 CREATE TABLE IF NOT EXISTS pm.wallets (
   wallet_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  wallet_address TEXT NOT NULL UNIQUE,
+  wallet_address TEXT NOT NULL UNIQUE, -- natural key
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS pm.wallets (
 -- =========================
 CREATE TABLE IF NOT EXISTS pm.events (
   event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_slug TEXT NOT NULL UNIQUE,
+  event_slug TEXT NOT NULL UNIQUE,     -- natural key
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -40,13 +40,22 @@ CREATE TABLE IF NOT EXISTS pm.bets (
   event_id UUID NOT NULL,
 
   bet_timestamp TIMESTAMPTZ NOT NULL,
-  cost NUMERIC(20, 8) NOT NULL CHECK (cost >= 0),
 
+  -- enforce your ingestion rule at the DB level
+  cost NUMERIC(20, 8) NOT NULL CHECK (cost >= 750),
+
+  -- optional but very useful for re-ingestion / dedupe
+  transaction_hash TEXT UNIQUE,
+
+  -- optional extra fields you already have
   title TEXT,
   outcome TEXT,
   side TEXT,
   asset TEXT,
   condition_id TEXT,
+
+  price NUMERIC(20, 8),
+  size  NUMERIC(20, 8),
 
   CONSTRAINT bets_user_fk
     FOREIGN KEY (user_id)
