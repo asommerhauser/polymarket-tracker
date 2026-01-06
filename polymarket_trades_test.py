@@ -137,20 +137,20 @@ def insert_qualifying_bets(cur, rows: list[tuple]):
     )
 
 def main():
-    # 1) Pull trades
+    # Pull trades
     resp = requests.get(BASE_URL, params=PARAMS, timeout=30)
     resp.raise_for_status()
     trades = resp.json()
     print(f"Pulled {len(trades)} trades")
 
-    # 2) Normalize
+    # Normalize
     df = normalize_trades_to_df(trades)
 
-    # 3) ALWAYS store users + wallets (even if they have no qualifying bets)
+    # ALWAYS store users + wallets (even if they have no qualifying bets)
     all_users = sorted(df["name"].dropna().astype(str).unique().tolist())
     all_wallets = sorted(df["proxyWallet"].dropna().astype(str).unique().tolist())
 
-    # 4) Filter qualifying bets
+    # Filter qualifying bets
     qualifying = df[df["cost"] >= COST_THRESHOLD].copy()
 
     # Events should only exist if they have >= 1 qualifying bet
@@ -163,20 +163,20 @@ def main():
 
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # 5) Upsert users + wallets always
+            # Upsert users + wallets always
             upsert_users(cur, all_users)
             upsert_wallets(cur, all_wallets)
 
-            # 6) Upsert events ONLY for qualifying bets
+            # Upsert events ONLY for qualifying bets
             if qualifying_event_slugs:
                 upsert_events(cur, qualifying_event_slugs)
 
-            # 7) Build UUID maps (natural key -> uuid)
+            # Build UUID maps (natural key -> uuid)
             user_map = fetch_id_map(cur, "pm.users", "display_name", "user_id", all_users)
             wallet_map = fetch_id_map(cur, "pm.wallets", "wallet_address", "wallet_id", all_wallets)
             event_map = fetch_id_map(cur, "pm.events", "event_slug", "event_id", qualifying_event_slugs)
 
-            # 8) Prepare bet insert rows ONLY for qualifying bets
+            # Prepare bet insert rows ONLY for qualifying bets
             bet_rows = []
             for _, r in qualifying.iterrows():
                 name = str(r["name"])
@@ -208,7 +208,7 @@ def main():
                     float(r["size"]) if pd.notna(r["size"]) else None,
                 ))
 
-            # 9) Insert bets
+            # Insert bets
             if bet_rows:
                 insert_qualifying_bets(cur, bet_rows)
 

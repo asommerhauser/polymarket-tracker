@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS pm.wallets (
 -- =========================
 CREATE TABLE IF NOT EXISTS pm.events (
   event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_slug TEXT NOT NULL UNIQUE,     -- natural key
+  event_slug TEXT NOT NULL UNIQUE,
+  outcome TEXT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
