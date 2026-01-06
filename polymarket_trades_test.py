@@ -1,5 +1,11 @@
 import requests
 import pandas as pd
+import os
+import psycopg2
+from psycopg2.extras import execute_batch
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_URL = "https://data-api.polymarket.com/trades"
 
@@ -18,6 +24,15 @@ DROP_COLUMNS = [
     "profileImageOptimized",
     "transactionHash",
 ]
+
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+    )
 
 def main():
     resp = requests.get(BASE_URL, params=PARAMS, timeout=30)
