@@ -21,6 +21,15 @@ CREATE TABLE IF NOT EXISTS pm.wallets (
 );
 
 -- =========================
+-- EVENTS
+-- =========================
+CREATE TABLE IF NOT EXISTS pm.events (
+  event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_slug TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- =========================
 -- BETS
 -- =========================
 CREATE TABLE IF NOT EXISTS pm.bets (
@@ -28,6 +37,7 @@ CREATE TABLE IF NOT EXISTS pm.bets (
 
   user_id UUID NOT NULL,
   wallet_id UUID NOT NULL,
+  event_id UUID NOT NULL,
 
   bet_timestamp TIMESTAMPTZ NOT NULL,
   cost NUMERIC(20, 8) NOT NULL CHECK (cost >= 0),
@@ -46,5 +56,10 @@ CREATE TABLE IF NOT EXISTS pm.bets (
   CONSTRAINT bets_wallet_fk
     FOREIGN KEY (wallet_id)
     REFERENCES pm.wallets(wallet_id)
-    ON DELETE RESTRICT
+    ON DELETE RESTRICT,
+
+  CONSTRAINT bets_event_fk
+    FOREIGN KEY (event_id)
+    REFERENCES pm.events(event_id)
+    ON DELETE CASCADE
 );
