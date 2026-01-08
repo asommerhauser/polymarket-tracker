@@ -300,5 +300,33 @@ def main():
 
     print(f"Done. Total trades seen={total_trades_seen}, total qualifying rows processed={total_qualifying_insert_rows}")
 
+def run_every_30_minutes():
+    interval_seconds = 30 * 60  # 30 minutes
+
+    while True:
+        start = time.time()
+        try:
+            print("\n==============================")
+            print("Starting scraper run...")
+            print("==============================")
+            main()
+            print("==============================")
+            print("Scraper run finished.")
+            print("==============================")
+        except Exception as e:
+            # Keep the loop alive even if a run fails
+            print(f"[ERROR] Scraper run failed: {e}")
+
+        elapsed = time.time() - start
+        sleep_for = max(0, interval_seconds - elapsed)
+
+        # If a run takes longer than 30 mins, immediately start next run (sleep 0)
+        if sleep_for > 0:
+            print(f"Sleeping {sleep_for/60:.2f} minutes until next run...\n")
+            time.sleep(sleep_for)
+        else:
+            print("Run took >= 30 minutes; starting next run immediately...\n")
+
+
 if __name__ == "__main__":
-    main()
+    run_every_30_minutes()
