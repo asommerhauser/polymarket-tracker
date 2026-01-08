@@ -57,7 +57,7 @@ pip install -r requirements.txt
 ```bash
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=polymarket_tracker
+DB_NAME=polymarket
 DB_USER=postgres
 DB_PASSWORD=your_password_here
 ```
